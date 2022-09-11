@@ -17,7 +17,7 @@ app.use((req, res, next) => {
   const { headers, url } = req;
   let listOfPrivateUrls = ["/login", "/register", "/news"];
 
-  if (!listOfPrivateUrls.includes(url)) {
+  if (!listOfPrivateUrls.includes(url) && !url.includes("/open/")) {
     const token = headers.bearer;
 
     try {
@@ -39,6 +39,21 @@ app.use((req, res, next) => {
 app.get("/news", async function (req, res) {
   try {
     const result = await news.get();
+
+    if (result.data) {
+      res.status(200).json(result);
+    }
+
+    res.status(401).json(result);
+  } catch (error) {
+    console.log(error.message);
+  }
+});
+
+app.get("/news/open/:news_id", async function (req, res) {
+  try {
+    const { news_id } = req.params;
+    const result = await news.getOne(news_id);
 
     if (result.data) {
       res.status(200).json(result);
@@ -114,6 +129,21 @@ app.post("/news/check-loved", async function (req, res) {
   try {
     const { news_id, user_id } = req.body;
     const result = await news.checkLoved(news_id, user_id);
+
+    if (result.data) {
+      res.status(200).json(result);
+    }
+
+    res.status(500).json(result);
+  } catch (error) {
+    console.log(error.message);
+  }
+});
+
+app.post("/news/turnoff-loved", async function (req, res) {
+  try {
+    const { news_id, user_id } = req.body;
+    const result = await news.turnOffLoved(news_id, user_id);
 
     if (result.data) {
       res.status(200).json(result);

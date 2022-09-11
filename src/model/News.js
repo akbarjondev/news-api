@@ -19,6 +19,24 @@ class News {
     }
   }
 
+  async getOne(news_id) {
+    try {
+      let sql = `select * from news where news_id=$1;`;
+      const data = await fetch(sql, [news_id]);
+      let news = await data;
+
+      return {
+        data: news,
+        message: "get one news",
+      };
+    } catch (error) {
+      return {
+        data: null,
+        message: error.message,
+      };
+    }
+  }
+
   async create(...inputs) {
     try {
       const sql = `insert into news(news_title, news_desc, news_picture)
@@ -43,7 +61,7 @@ class News {
       const [data] = await fetch(sql, inputs);
 
       return {
-        data: data,
+        data: data ? data : "Bu yangilik o'chirilgan",
         message: "edit news",
       };
     } catch (error) {
@@ -96,6 +114,23 @@ class News {
       return {
         data: data ? data : null,
         message: "check loved news by user",
+      };
+    } catch (error) {
+      return {
+        data: null,
+        message: error.message,
+      };
+    }
+  }
+
+  async turnOffLoved(...inputs) {
+    try {
+      const sql = `update loved set loved_added=false where loved_news_id=$1 and loved_user_id=$2 returning *;`;
+      const [data] = await fetch(sql, inputs);
+
+      return {
+        data: data ? data : null,
+        message: "turn off loved news by user",
       };
     } catch (error) {
       return {
